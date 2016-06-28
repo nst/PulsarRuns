@@ -7,7 +7,7 @@ __Usage__
 
 1. get a Strava access token from [https://www.strava.com/settings/api](https://www.strava.com/settings/api) and put it in `downloadAndDumpAthleteAndActivities()`
 2. run the code once to download the data and save it in `/tmp`
-3. set `download` to false an run the code again to draw the picture
+3. set `download` to `false` and run the code again to draw the picture
 
 You may have to modify some constants to get a nice looking result.
 
