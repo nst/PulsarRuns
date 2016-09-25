@@ -144,12 +144,13 @@ func loadAthleteAndActivities(dirPath:String) -> ([String:AnyObject], [[String:A
         
         let url = URL(fileURLWithPath: dirPath)
         let urls = try FileManager.default.contentsOfDirectory(at: url, includingPropertiesForKeys: nil)
+        
         let activities = urls
             .filter{ $0.pathExtension == "json" }
             .flatMap{ try? Data(contentsOf:$0) }
             .flatMap{ try? JSONSerialization.jsonObject(with: $0) as? [String:AnyObject] }
             .flatMap{ $0 }
-            .filter{ return $0["type"] as? String == "Run" }
+            .filter{ return $0["type"] as? String == "Run" || $0["type"] as? String == "Race" }
         
         return (athlete, activities)
     } catch let error as NSError {
@@ -175,7 +176,13 @@ if download {
     //print(athlete)
     //print(activities)
     
-    let view = RunningView(frame: NSMakeRect(0, 0, 1000, 2350), activities:activities, athlete:athlete)
+    // eg [id_1, id_2, id_3] to get only one path for several consecutive ids
+//    let kvChando = [722892381, 723144918, 723144855]
+//    let montreuxRochersDeNaye = [628334311, 628519686]
+//    let martinaux = [691604950, 691722446]
+    let idsToBeMerged : [[Int]] = []
+    
+    let view = RunningView(frame: NSMakeRect(0, 0, 1000, 2350), activities:activities, athlete:athlete, activityIDsToBeMerged:idsToBeMerged)
     
     let shortName = athlete["username"] as? String ?? "strava_runs"
     

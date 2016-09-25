@@ -21,14 +21,19 @@ class RunningView : CanvasView {
         super.init(coder: coder)
     }
     
-    init(frame frameRect: NSRect, activities:[[String:AnyObject]], athlete:[String:AnyObject]) {
+    init(frame frameRect: NSRect, activities:[[String:AnyObject]], athlete:[String:AnyObject], activityIDsToBeMerged:[[Int]]) {
         super.init(frame:frameRect)
         self.activities = activities
         self.athlete = athlete
         
+        self.updateActivitiesByMergingIDs(activityIDsToBeMerged:activityIDsToBeMerged)
+        
         let optionalMaxDistance = activities.map{ $0["distance"] as? Double }.flatMap{ $0 }.max()
         
-        guard let existingMaxDistance = optionalMaxDistance else { assertionFailure(); return }
+        guard let existingMaxDistance = optionalMaxDistance else {
+            fatalError("ensure you've downloaded athlete first")
+        }
+        
         maxDistance = existingMaxDistance
         
         //
@@ -40,8 +45,52 @@ class RunningView : CanvasView {
             return altitudeMax - altitudeMin
         }
 
-        guard let existingMaxAltitudeDelta = altitudesDelta.max() else { assertionFailure(); return }
+        guard let existingMaxAltitudeDelta = altitudesDelta.max() else {
+            fatalError("ensure you've downloaded athlete first")
+        }
+        
         maxAltitudeDelta = existingMaxAltitudeDelta
+    }
+    
+    func updateActivitiesByMergingIDs(activityIDsToBeMerged:[[Int]]) {
+        // for IDs to be merged, update 'altitude_points' and 'distance_points'
+        for ids in activityIDsToBeMerged {
+            let parentID = ids[0]
+            let childrenID = ids[1..<ids.count]
+            guard var p = self.activity(id: parentID) else { fatalError() }
+            guard var pAltitudePoints = p["altitude_points"] as? [Double] else { fatalError() }
+            guard var pDistancePoints = p["distance_points"] as? [Double] else { fatalError() }
+            for childID in childrenID {
+                guard let lastDistance = pDistancePoints.last else { fatalError() }
+                guard let c = self.activity(id: childID) else { continue }
+                guard let cAltitudePoints = c["altitude_points"] as? [Double] else { fatalError() }
+                guard let cDistancePoints = c["distance_points"] as? [Double] else { fatalError() }
+                pAltitudePoints += cAltitudePoints
+                pDistancePoints += cDistancePoints.map { lastDistance + $0 }
+                removeActivity(id:childID)
+            }
+            p["altitude_points"] = pAltitudePoints as AnyObject
+            p["distance_points"] = pDistancePoints as AnyObject
+            removeActivity(id:ids[0])
+            self.activities.append(p)
+        }
+    }
+    
+    func activity(id:Int) -> [String:AnyObject]? {
+        return activities.filter { $0["id"] as? Int == id }.first
+    }
+    
+    func removeActivity(id:Int) {
+        guard let a = activity(id: id) else { fatalError() }
+        
+        for (i,o) in activities.enumerated() {
+            guard let oID = o["id"] as? Int else { fatalError() }
+            guard let aID = a["id"] as? Int else { fatalError() }
+            if oID == aID {
+                self.activities.remove(at: i)
+                return
+            }
+        }
     }
     
     override func draw(_ dirtyRect: NSRect) {
