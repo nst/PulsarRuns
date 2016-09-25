@@ -56,10 +56,10 @@ class RunningView : CanvasView {
         // context.translate(x: 0.5, y: 0.5)
         
         // makes coordinates start upper left
-        context.translate(x: 0.0, y: self.bounds.height)
-        context.scale(x: 1.0, y: -1.0)
+        context.translateBy(x: 0.0, y: self.bounds.height)
+        context.scaleBy(x: 1.0, y: -1.0)
         
-        NSColor.black().setFill()
+        NSColor.black.setFill()
         context.fill(dirtyRect)
         
         let MAX_ACTIVITY_H = 100.0
@@ -102,7 +102,7 @@ class RunningView : CanvasView {
 
             // 2. draw left gray line
 
-            NSColor.gray().setStroke()
+            NSColor.gray.setStroke()
 
             let pathLeft = NSBezierPath()
             pathLeft.lineWidth = 2.0
@@ -113,13 +113,13 @@ class RunningView : CanvasView {
 
             // 3. draw run profile in white
 
-            NSColor.white().setStroke()
+            NSColor.white.setStroke()
 
             guard let low = activity["lowest_relative_altitude"] as? Double else { assertionFailure(); continue }
             guard let high = activity["highest_relative_altitude"] as? Double else { assertionFailure(); continue }
             let profileIsMoreDown = abs(low) > high
             
-            let fillColor = profileIsMoreDown ? NSColor.clear() : NSColor.black()
+            let fillColor = profileIsMoreDown ? NSColor.clear : NSColor.black
             
             fillColor.setFill()
             
@@ -150,7 +150,7 @@ class RunningView : CanvasView {
             
             // 4. draw right gray line
             
-            NSColor.gray().setStroke()
+            NSColor.gray.setStroke()
             
             let pathRight = NSBezierPath()
             pathRight.lineWidth = 2.0
@@ -165,7 +165,7 @@ class RunningView : CanvasView {
                 let fontSize = CGFloat(18)
                 let point = P(self.frame.width-RIGHT_MARGIN_W-RIGHT_TEXT_ZONE_W + 16, CGFloat(baseY) - fontSize + 6)
                 let font = NSFont(name:"Helvetica", size:fontSize)!
-                self.text(activityName, point, font:font, color:NSColor.gray())
+                self.text(activityName, point, font:font, color:NSColor.gray)
             }
         }
         
@@ -182,7 +182,7 @@ class RunningView : CanvasView {
                 CGFloat(TOP_MARGIN_H) + CGFloat(activities.count) * CGFloat(ACTIVITIES_OFFSET_H) + CGFloat(MAX_ACTIVITY_H) + CGFloat(40))
             
             let font = NSFont(name:"Helvetica", size:72)!
-            self.text("\(firstName) \(lastName)", textPoint, font:font, color:NSColor.white())
+            self.text("\(firstName) \(lastName)", textPoint, font:font, color:NSColor.white)
         }
         
         context.restoreGState()

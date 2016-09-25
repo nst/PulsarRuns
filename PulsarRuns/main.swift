@@ -8,14 +8,14 @@
 
 import Cocoa
 
-let ACCESS_TOKEN = "627a88bd273c41e77b713b7e38ebb726ac31939a"
+let ACCESS_TOKEN = "" // from https://www.strava.com/settings/api
 
-func fetchAthlete(completion:(([String:AnyObject])->Void)) {
+func fetchAthlete(completion: @escaping (([String:AnyObject])->Void)) {
     
     let urlString = "https://www.strava.com/api/v3/athlete?access_token=\(ACCESS_TOKEN)&per_page=200"
     print(urlString)
     
-    URLSession.shared().dataTask(with: URL(string: urlString)!) { (data, response, error) in
+    URLSession.shared.dataTask(with: URL(string: urlString)!) { (data, response, error) in
         guard let existingData = data else { completion([:]); return }
         guard let optionalAthlete = try? JSONSerialization.jsonObject(with: existingData) as? [String:AnyObject] else { completion([:]); return }
         guard let athlete = optionalAthlete else { completion([:]); return }
@@ -26,12 +26,12 @@ func fetchAthlete(completion:(([String:AnyObject])->Void)) {
         }.resume()
 }
 
-func fetchActivities(completion:(([[String:AnyObject]])->Void)) {
+func fetchActivities(completion: @escaping (([[String:AnyObject]])->Void)) {
     
     let urlString = "https://www.strava.com/api/v3/activities?access_token=\(ACCESS_TOKEN)&per_page=200"
     print(urlString)
     
-    URLSession.shared().dataTask(with: URL(string: urlString)!) { (data, response, error) in
+    URLSession.shared.dataTask(with: URL(string: urlString)!) { (data, response, error) in
         guard let existingData = data else { completion([]); return }
         guard let optionalActivities = try? JSONSerialization.jsonObject(with: existingData) as? [[String:AnyObject]] else { completion([]); return }
         guard let activities = optionalActivities else { completion([]); return }
@@ -42,15 +42,15 @@ func fetchActivities(completion:(([[String:AnyObject]])->Void)) {
         }.resume()
 }
 
-func fetchAltitudes(_ id:Int, resolution:String = "medium", completion:((distancePoints:[Double], altitudePoints:[Double])->Void)) {
+func fetchAltitudes(_ id:Int, resolution:String = "medium", completion: @escaping ((_ distancePoints:[Double], _ altitudePoints:[Double])->Void)) {
     
     let urlString = "https://www.strava.com/api/v3/activities/\(id)/streams/altitude?resolution=\(resolution)&access_token=\(ACCESS_TOKEN)"
     print(urlString)
     
-    URLSession.shared().dataTask(with: URL(string: urlString)!) { (data, response, error) in
-        guard let existingData = data else { completion(distancePoints: [], altitudePoints: []); return }
-        guard let optionalStreams = try? JSONSerialization.jsonObject(with: existingData) as? [[String:AnyObject]] else { completion(distancePoints: [], altitudePoints: []); return }
-        guard let streams = optionalStreams else { completion(distancePoints: [], altitudePoints: []); return }
+    URLSession.shared.dataTask(with: URL(string: urlString)!) { (data, response, error) in
+        guard let existingData = data else { completion([], []); return }
+        guard let optionalStreams = try? JSONSerialization.jsonObject(with: existingData) as? [[String:AnyObject]] else { completion([], []); return }
+        guard let streams = optionalStreams else { completion([], []); return }
         
         guard let distanceStream = streams.filter({ $0["type"] as? String == "distance" }).first else { assertionFailure(); return }
         guard let altitudeStream = streams.filter({ $0["type"] as? String == "altitude" }).first else { assertionFailure(); return }
@@ -59,12 +59,12 @@ func fetchAltitudes(_ id:Int, resolution:String = "medium", completion:((distanc
         guard let altitudePoints = altitudeStream["data"] as? [Double] else { assertionFailure(); return }
         
         DispatchQueue.main.async {
-            completion(distancePoints:distancePoints, altitudePoints:altitudePoints)
+            completion(distancePoints, altitudePoints)
         }
         }.resume()
 }
 
-func downloadAndDumpAthleteAndActivities(dirPath:String, completion:(()->Void)) {
+func downloadAndDumpAthleteAndActivities(dirPath:String, completion: @escaping (()->Void)) {
     
     assert(ACCESS_TOKEN.characters.count > 0, "Get an access token from Strava on https://www.strava.com/settings/api")
     
@@ -92,7 +92,7 @@ func downloadAndDumpAthleteAndActivities(dirPath:String, completion:(()->Void)) 
         for a in activities {
             
             guard let id = a["id"] as? Int else { continue }
-            guard let type = a["type"] as? String where type == "Run" else { continue }
+            guard let type = a["type"] as? String, type == "Run" else { continue }
             
             var a_augmented = a
             
@@ -101,8 +101,8 @@ func downloadAndDumpAthleteAndActivities(dirPath:String, completion:(()->Void)) 
             fetchAltitudes(id, completion: { (distancePoints, altitudePoints) in
                 assert(distancePoints.count == altitudePoints.count)
                 
-                a_augmented["distance_points"] = distancePoints
-                a_augmented["altitude_points"] = altitudePoints
+                a_augmented["distance_points"] = distancePoints as AnyObject
+                a_augmented["altitude_points"] = altitudePoints as AnyObject
                 
                 guard let startAltitude = altitudePoints.first else { assertionFailure(); return }
                 let altitudesDelta = altitudePoints.map{ $0 - startAltitude }
@@ -110,8 +110,8 @@ func downloadAndDumpAthleteAndActivities(dirPath:String, completion:(()->Void)) 
                 guard let min = altitudesDelta.min() else { assertionFailure(); return }
                 guard let max = altitudesDelta.max() else { assertionFailure(); return }
                 
-                a_augmented["lowest_relative_altitude"] = min
-                a_augmented["highest_relative_altitude"] = max
+                a_augmented["lowest_relative_altitude"] = min as AnyObject
+                a_augmented["highest_relative_altitude"] = max as AnyObject
                 
                 do {
                     let data = try JSONSerialization.data(withJSONObject: a_augmented, options: [])
@@ -143,7 +143,7 @@ func loadAthleteAndActivities(dirPath:String) -> ([String:AnyObject], [[String:A
         let athlete = optionalAthlete ?? [:]
         
         let url = URL(fileURLWithPath: dirPath)
-        let urls = try FileManager.default().contentsOfDirectory(at: url, includingPropertiesForKeys: nil)
+        let urls = try FileManager.default.contentsOfDirectory(at: url, includingPropertiesForKeys: nil)
         let activities = urls
             .filter{ $0.pathExtension == "json" }
             .flatMap{ try? Data(contentsOf:$0) }
@@ -168,17 +168,17 @@ if download {
         exit(0)
     }
     
-    RunLoop.current().run()
+    RunLoop.current.run()
     
 } else {
     let (athlete, activities) = loadAthleteAndActivities(dirPath: "/private/tmp/")
     //print(athlete)
     //print(activities)
     
-    let view = RunningView(frame: NSMakeRect(0, 0, 1000, 1700), activities:activities, athlete:athlete)
+    let view = RunningView(frame: NSMakeRect(0, 0, 1000, 2350), activities:activities, athlete:athlete)
     
     let shortName = athlete["username"] as? String ?? "strava_runs"
     
-    view.savePDF("/tmp/\(shortName).pdf", open:true)
+    //view.savePDF("/tmp/\(shortName).pdf", open:true)
     view.savePNG("/tmp/\(shortName).png", open:true)
 }

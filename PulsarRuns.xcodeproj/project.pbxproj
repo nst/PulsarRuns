@@ -10,7 +10,6 @@
 		03A037B51D2299610038A0BB /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03A037B41D2299610038A0BB /* main.swift */; };
 		03A037BC1D2299700038A0BB /* CanvasView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03A037BB1D2299700038A0BB /* CanvasView.swift */; };
 		03A037BE1D2299740038A0BB /* RunningView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03A037BD1D2299740038A0BB /* RunningView.swift */; };
-		03A037C01D229A890038A0BB /* README.md in Sources */ = {isa = PBXBuildFile; fileRef = 03A037BF1D229A890038A0BB /* README.md */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -133,7 +132,6 @@
 			files = (
 				03A037BC1D2299700038A0BB /* CanvasView.swift in Sources */,
 				03A037BE1D2299740038A0BB /* RunningView.swift in Sources */,
-				03A037C01D229A890038A0BB /* README.md in Sources */,
 				03A037B51D2299610038A0BB /* main.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -229,6 +227,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 3.0;
 			};
 			name = Debug;
 		};
@@ -236,6 +235,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 3.0;
 			};
 			name = Release;
 		};
@@ -258,6 +258,7 @@
 				03A037BA1D2299610038A0BB /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

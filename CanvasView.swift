@@ -73,7 +73,7 @@ func R(_ x:Int, _ y:Int, _ w:Int, _ h:Int) -> NSRect {
 }
 
 func degreesToRadians(_ x:CGFloat) -> CGFloat {
-    return (CGFloat(M_PI) * x / 180.0)
+    return ((CGFloat(M_PI) * x) / 180.0)
 }
 
 class CanvasView : NSView {
@@ -86,7 +86,7 @@ class CanvasView : NSView {
         self.context = unsafeBitCast(NSGraphicsContext.current()!.graphicsPort, to:CGContext.self)
     }
     
-    func text(_ text:String, _ p:NSPoint, rotationRadians:CGFloat?, font : NSFont = NSFont(name: "Monaco", size: 10)!, color : NSColor = NSColor.black()) {
+    func text(_ text:String, _ p:NSPoint, rotationRadians:CGFloat?, font : NSFont = NSFont(name: "Monaco", size: 10)!, color : NSColor = NSColor.black) {
         
         let attr = [
             NSFontAttributeName:font,
@@ -96,24 +96,24 @@ class CanvasView : NSView {
         context.saveGState()
         
         if let radians = rotationRadians {
-            context.translate(x: p.x, y: p.y)
-            context.rotate(byAngle: radians)
-            context.translate(x: -p.x, y: -p.y)
+            context.translateBy(x: p.x, y: p.y)
+            context.rotate(by: radians)
+            context.translateBy(x: -p.x, y: -p.y)
         }
         
-        context.scale(x: 1.0, y: -1.0)
-        context.translate(x: 0.0, y: -2.0 * p.y - font.pointSize)
+        context.scaleBy(x: 1.0, y: -1.0)
+        context.translateBy(x: 0.0, y: (-2.0 * p.y) - font.pointSize)
         
         text.draw(at: p, withAttributes: attr)
         
         context.restoreGState()
     }
     
-    func text(_ text:String, _ p:NSPoint, rotationDegrees degrees:CGFloat = 0.0, font : NSFont = NSFont(name: "Monaco", size: 10)!, color : NSColor = NSColor.black()) {
+    func text(_ text:String, _ p:NSPoint, rotationDegrees degrees:CGFloat = 0.0, font : NSFont = NSFont(name: "Monaco", size: 10)!, color : NSColor = NSColor.black) {
         self.text(text, p, rotationRadians: degreesToRadians(degrees), font: font, color: color)
     }
     
-    func rectangle(rect:NSRect, stroke stroke_:NSColor? = NSColor.black(), fill fill_:NSColor? = nil) {
+    func rectangle(rect:NSRect, stroke stroke_:NSColor? = NSColor.black, fill fill_:NSColor? = nil) {
         
         let stroke = stroke_
         let fill = fill_
@@ -133,7 +133,7 @@ class CanvasView : NSView {
         context.restoreGState()
     }
     
-    func polygon(points:[NSPoint], stroke stroke_:NSColor? = NSColor.black(), lineWidth:CGFloat=1.0, fill fill_:NSColor? = nil) {
+    func polygon(points:[NSPoint], stroke stroke_:NSColor? = NSColor.black, lineWidth:CGFloat=1.0, fill fill_:NSColor? = nil) {
         
         guard points.count >= 3 else {
             assertionFailure("at least 3 points are needed")
@@ -146,7 +146,7 @@ class CanvasView : NSView {
         
         path.move(to:points[0])
         
-        for i in 1...points.count-1 {
+        for i in 1..<points.count {
             path.line(to:points[i])
         }
         
