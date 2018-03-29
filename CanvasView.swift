@@ -8,50 +8,6 @@
 
 import Cocoa
 
-infix operator * { associativity right precedence 155 }
-
-func *(left:CGFloat, right:Int) -> CGFloat
-{ return left * CGFloat(right) }
-
-func *(left:Int, right:CGFloat) -> CGFloat
-{ return CGFloat(left) * right }
-
-func *(left:CGFloat, right:Double) -> CGFloat
-{ return left * CGFloat(right) }
-
-func *(left:Double, right:CGFloat) -> CGFloat
-{ return CGFloat(left) * right }
-
-infix operator + { associativity right precedence 145 }
-
-func +(left:CGFloat, right:Int) -> CGFloat
-{ return left + CGFloat(right) }
-
-func +(left:Int, right:CGFloat) -> CGFloat
-{ return CGFloat(left) + right }
-
-func +(left:CGFloat, right:Double) -> CGFloat
-{ return left + CGFloat(right) }
-
-func +(left:Double, right:CGFloat) -> CGFloat
-{ return CGFloat(left) + right }
-
-infix operator - { associativity right precedence 145 }
-
-func -(left:CGFloat, right:Int) -> CGFloat
-{ return left - CGFloat(right) }
-
-func -(left:Int, right:CGFloat) -> CGFloat
-{ return CGFloat(left) - right }
-
-func -(left:CGFloat, right:Double) -> CGFloat
-{ return left - CGFloat(right) }
-
-func -(left:Double, right:CGFloat) -> CGFloat
-{ return CGFloat(left) - right }
-
-//
-
 func P(_ x:CGFloat, _ y:CGFloat) -> NSPoint {
     return NSMakePoint(x, y)
 }
@@ -73,7 +29,7 @@ func R(_ x:Int, _ y:Int, _ w:Int, _ h:Int) -> NSRect {
 }
 
 func degreesToRadians(_ x:CGFloat) -> CGFloat {
-    return ((CGFloat(M_PI) * x) / 180.0)
+    return ((CGFloat(Double.pi) * x) / 180.0)
 }
 
 class CanvasView : NSView {

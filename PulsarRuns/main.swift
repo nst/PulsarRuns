@@ -66,7 +66,7 @@ func fetchAltitudes(_ id:Int, resolution:String = "medium", completion: @escapin
 
 func downloadAndDumpAthleteAndActivities(dirPath:String, completion: @escaping (()->Void)) {
     
-    assert(ACCESS_TOKEN.characters.count > 0, "Get an access token from Strava on https://www.strava.com/settings/api")
+    assert(ACCESS_TOKEN.count > 0, "Get an access token from Strava on https://www.strava.com/settings/api")
     
     fetchActivities { (activities) in
         
@@ -75,15 +75,16 @@ func downloadAndDumpAthleteAndActivities(dirPath:String, completion: @escaping (
         group.enter()
         
         fetchAthlete(completion: { (athlete) in
+            
             do {
                 let data = try JSONSerialization.data(withJSONObject: athlete, options: [])
                 let path = (dirPath as NSString).appendingPathComponent("athlete.json")
                 let url = URL(fileURLWithPath: path)
                 try data.write(to: url)
-                print("-- athlete \(athlete["id"]) saved")
+                print("-- athlete \(athlete) saved")
             } catch let error {
                 print(error)
-                print("-- athlete \(athlete["id"]) error: \(error)")
+                print("-- athlete \(athlete) error: \(error)")
             }
             
             group.leave()
@@ -160,7 +161,7 @@ func loadAthleteAndActivities(dirPath:String) -> ([String:AnyObject], [[String:A
     return ([:], [])
 }
 
-let download = true // true to download data, then false to draw picture
+let download = false // true to download data, then false to draw picture
 
 if download {
     
@@ -177,12 +178,13 @@ if download {
     //print(activities)
     
     // eg [id_1, id_2, id_3] to get only one path for several consecutive ids
-//    let kvChando = [722892381, 723144918, 723144855]
-//    let montreuxRochersDeNaye = [628334311, 628519686]
-//    let martinaux = [691604950, 691722446]
-    let idsToBeMerged : [[Int]] = []
+    let kvChando = [722892381, 723144918, 723144855]
+    let montreuxRochersDeNaye = [628334311, 628519686]
+    let martinaux = [691604950, 691722446]
+    let thyonDixence = [667441401, 672243034]
+    let idsToBeMerged : [[Int]] = [kvChando, montreuxRochersDeNaye, martinaux, thyonDixence]
     
-    let view = RunningView(frame: NSMakeRect(0, 0, 1000, 2350), activities:activities, athlete:athlete, activityIDsToBeMerged:idsToBeMerged)
+    let view = RunningView(frame: NSMakeRect(0, 0, 1000, 4300), activities:activities, athlete:athlete, activityIDsToBeMerged:idsToBeMerged)
     
     let shortName = athlete["username"] as? String ?? "strava_runs"
     
